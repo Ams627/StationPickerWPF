@@ -122,31 +122,31 @@ namespace StationPickerWPF
                     }
                     var match = Regex.Match(s.Name, pattern, RegexOptions.IgnoreCase);
 
-                // if neither name nor CRS match the partial input then return null:
-                if (!match.Success && !crsMatch)
+                    // if neither name nor CRS match the partial input then return null:
+                    if (!match.Success && !crsMatch)
                     {
                         return null;
                     }
 
-                // rank for sorting stations -1 means not ranked yet:
-                int rank = -1;
+                    // rank for sorting stations -1 means not ranked yet:
+                    int rank = -1;
 
-                // A full 3-letter CRS match is the highest rank:
-                if (partialname.Length == 3 && crsMatch)
+                    // A full 3-letter CRS match is the highest rank:
+                    if (partialname.Length == 3 && crsMatch)
                     {
                         rank = 0;
                     }
                     else if (!match.Success)
                     {
-                    // here the partial input doesn't match any stations - so there is just a partial CRS match - this is the lowest rank:
-                    rank = 1000;
+                        // here the partial input doesn't match any stations - so there is just a partial CRS match - this is the lowest rank:
+                        rank = 1000;
                     }
                     return new
                     {
                         crs = s.CRS,
                         name = s.Name,
-                    // rank by the position of the word match within the sentence:
-                    rank = rank == -1 ? s.Name.Substring(0, match.Index).Split().Count() : rank
+                        // rank by the position of the word match within the sentence (split word at dash or space):
+                        rank = rank == -1 ? 1 + s.Name.Substring(0, match.Index).Split(new[] { '-', ' ' }).Count() : rank
                     };
                 }).Where(x => x != null).OrderBy(x => x.rank).ThenBy(x => x.name);
                 foreach (var result in searchresults)
